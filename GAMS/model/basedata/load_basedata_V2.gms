@@ -208,7 +208,15 @@ ihland(h) = sum((a),X0(h,a,'irr'));
 icland      = sum((h,a),X0(h,a,'irr'));
 
 *   ---- household weight within the commune
-w(h)= thland(h)/tland ;
+*w(h)= thland(h)/tland ;
+*   ---- household weight within the commune (based on the number of households within each cluster)
+** --- 266 Household surveyed
+w('H1')= 47/266 ;
+w('H2')= 33/266;
+w('H3')= 99/266 ;
+w('H4')= 8/266 ;
+w('H5')= 79/266 ;
+
 
 *   ---- crop data household
 * --- yield (ton/ha)
