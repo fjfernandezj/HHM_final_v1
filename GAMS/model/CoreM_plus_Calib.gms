@@ -72,6 +72,7 @@ IM_Lab          Imported quantities of labour
 EX_Lab          Exported quantities of labour
 FW              Net water quantity at the farm gate (th m3)
 
+
 * --- Consumption Module
 prdq
 sldq
@@ -89,12 +90,11 @@ eq_FarmHhinc          Farm household expected income
 *** --- SUPPLY MODULE
 eq_AgrInc_LP          Agricultural Income with linear Costs
 eq_AgrInc_NLP         Agricultural Income with PMP Cost parameters
-*eq_RscConst           Resource constraints at farm household level (land-labour-water-capital)
 eq_tLAND              Land constraint
 eq_iLAND              Irrigable land constraint
 eq_TotLab             Labour constraint
 eq_TotLab             Labour constraint
-eq_FamLab             Family labor balance    (days)
+eq_FamLab             Family labor balance    (working days)
 eq_LabIncAcc          Labor income accounting  (million CLP$)
 eq_qttbaltrf          Quantity balance of tradable factors at aggregated level
 eq_waterUse           Water accounting equation
@@ -107,23 +107,23 @@ eq_prdGds2            Produced goods constraint
 eq_buyorsell          Households buy or sell goods not both
 eq_cshcnstrnt_LP      Cash constraint Linear
 eq_expfunct           Farm household expenditure function
-
 ;
 
 *---Equation definition
 *---Supply module
 
 * --- Objective function
-eq_Obj..                  U =e=sum(h, w(h)*R(h));
+*** ---- ¿¿¿??? Adding household weight to the Objective funtion impede a good calibration ---Why???
+eq_Obj..                  U =e=sum(h, R(h));
 
 eq_FarmHhinc(h)..         R(h) =e= Z(h) + LABEARN(h) + exinc(h) ;
 
 eq_AgrInc_LP(h)..         Z(h) =e= sum(j, [sldq(h,j)+ cs(h,j)]*jprice(j)) + sb(h)
                           - sum((a,s)$map_has(h,a,s), acst(h,a,s)*x(h,a,s)) - (LabWage*HLAB(h));
 
-eq_tLAND..                sum((h,a,s)$map_has(h,a,s), X(h,a,s)) =L= tland;
+eq_tLAND(h)..              sum((a,s)$map_has(h,a,s), X(h,a,s)) =L= thland(h) ;
 
-eq_iLAND..                sum((h,a)$map_has(h,a,'irr'), X(h,a,'irr')) =L= IL;
+eq_iLAND(h)..             sum(a$map_has(h,a,'irr'), X(h,a,'irr')) =L= IL(h);
 
 eq_TotLab(h)..            sum((a,s)$map_has(h,a,s), labreq(h,a,s)* X(h,a,s))=l=  FLAB(h) + HLAB(h) ;
 
@@ -131,7 +131,7 @@ eq_FamLab(h)..            FLAB(h) + FOUT(h) =e= flab0(h) ;
 
 eq_LabIncAcc(h)..         LABEARN(h) =e=  FOUT(h)* owage;
 
-eq_qttbaltrf..        sum(h, w(h)*FOUT(h)) + IM_Lab =e= sum(h, w(h)*HLAB(h)) + EX_Lab;
+eq_qttbaltrf..            sum(h, w(h)*FOUT(h)) + IM_Lab =e= sum(h, w(h)*HLAB(h)) + EX_Lab;
 
 eq_waterUse(h)..          sum(a$map_has(h,a,'irr'), fir(h,a,'irr')*X(h,a,'irr')) =L= FW(h);
 
@@ -152,14 +152,18 @@ eq_cshcnstrnt_LP(h)..      sum(j, sldq(h,j)*jprice(j)) + sb(h)+ exinc(h) + LABEA
 eq_expfunct(h,j)$map_hj(h,j)..      cnsq(h,j)*jprice(j) =e= beta(h,j)*[R(h)- sum(jj, gamma(h,jj)*jprice(jj))]+ gamma(h,j)*jprice(j);
 
 
+
+
 * consider only potential activities
 X.fx(h,a,s)$(not map_has(h,a,s)) = 0;
 
 * bounds on variables
 X.up(h,a,s)$map_has(h,a,s) = tland;
 *FOUT.up(h) = 0;
+FW.up(h)                   = w0(h)*hd;
 
-IL.up = 1.2*icland;
+IL.up(h) = 1.2*ihland(h);
+
 
 *---Model definition
 Model  basesupply model for the Maule region Chile /
@@ -174,7 +178,6 @@ eq_LabIncAcc
 eq_qttbaltrf
 eq_waterUse
 eq_water
-* Consumption eqs
 eq_Qttyblnce
 eq_prdGds
 eq_prdGds2
@@ -271,20 +274,24 @@ REPORT3('Ttl_Land','','pmpCalib')= sum((h,a,s), X.L(h,a,s));
 REPORT3('Irr_Land','Level','pmpCalib') = sum((h,a)$map_has(h,a,'irr'), X.L(h,a,'irr'));
 
 * Check parameters (Activities, Labour, water and land)
-parameter chPMP, chIrrland, chTtlLnd;
+parameter chPMP, chHlab, chIrrland, chTtlLnd;
 
 * --- check activities
 chPMP(h,a,s,'X0')  = x0(h,a,s);
 chPMP(h,a,s,'pmpCalib') = x.l(h,a,s);
 chPMP(h,a,s,'diff') = chPMP(h,a,s,'X0') - chPMP(h,a,s,'pmpCalib');
 
+* --- check Hired labour
+chHlab(h,'Hlab0')= hlab0(h);
+chHlab(h,'pmpHlab') = HLAB.l(h) ;
+chHlab(h,'diff') = chHlab(h,'Hlab0') - chHlab(h,'pmpHlab')   ;
 
-* --- check activities
+* --- check Irrigated Land
 chIrrland('IL0') = sum((h,a),X0(h,a,'irr')) ;
 chIrrland('pmpIrrLand')  = sum((h,a),X.l(h,a,'irr')) ;
 chIrrland ('diff')  = chIrrland('IL0') -  chIrrland('pmpIrrLand') ;
 
-* --- check activities
+* --- check Total Land
 chTtlLnd('TtlLand0') = sum((h,a,s), x0(h,a,s));
 chTtlLnd('pmpLnd')   = sum((h,a,s), x.l(h,a,s));
 chTtlLnd('diff')     =  chTtlLnd('TtlLand0') -  chTtlLnd('pmpLnd') ;
@@ -303,19 +310,24 @@ Parameter ALPHACST  "marginal cost intercept"
           cpar      "cost function parameters"
 ;
 
-
 mu1(h,a,s)$map_has(h,a,s)  = CALIB1.M(h,a,s);
 
-ALPHACST(h,a,s)$map_has(h,a,s) = acst(h,a,s)- mu1(h,a,s);
-BETACST(h,a,s)$map_has(h,a,s)  = 2*mu1(h,a,s)/x0(h,a,s);
+* ---Depending on the approach that the user want to use we can deactivate or not each option
+* --- PMP 1srt approach (Standard PMP - Average Cost Function)
+*ALPHACST(h,a,s)$map_has(h,a,s) = acst(h,a,s)- mu1(h,a,s);
+*BETACST(h,a,s)$map_has(h,a,s)  = 2*mu1(h,a,s)/x0(h,a,s);
 
-* PMP 2nd approach with elasticities
+* --- PMP 2nd approach with elasticities - Average Cost Function
 *BETACST(h,a,s)$map_has(h,a,s) = (1/selas(a))*((pprice(a))/x0(h,a,s)) ;
 *ALPHACST(h,a,s)$map_has(h,a,s) = acst(h,a,s)+ mu1(h,a,s)- BETACST(h,a,s)*x0(h,a,s);
 
-cpar(h,a,s,'alphacst') = ALPHACST(h,a,s);
+* --- PMP 3rd approach with elasticities
+BETACST(h,a,s)$map_has(h,a,s) = (1/selas(a)) ;
+ALPHACST(h,a,s)$map_has(h,a,s) = (1/(1+BETACST(h,a,s))) * (acst(h,a,s)+ mu1(h,a,s))*x0(h,a,s)**(-BETACST(h,a,s));
+
+cpar(h,a,s,'alphacst')  = ALPHACST(h,a,s);
 cpar(h,a,s,'betacst')   = BETACST(h,a,s);
-cpar(h,a,s,'mu1')    = mu1(h,a,s) ;
+cpar(h,a,s,'mu1')       = mu1(h,a,s) ;
 
 *   ---- non linear PMP model
 equation eq_AgrInc_nlp            "non linear Agricultural expected income function"
@@ -323,24 +335,48 @@ equation eq_AgrInc_nlp            "non linear Agricultural expected income funct
 ;
 
 *** --- Eqs without Implicit marginal costs of labour
+*eq_AgrInc_nlp(h)..        Z(h) =e= sum(j, [sldq(h,j)+ cs(h,j)]*jprice(j)) + sb(h)
+*                          - sum((a,s)$map_has(h,a,s), ALPHACST(h,a,s)*x(h,a,s)+ 0.5 * BETACST(h,a,s)*x(h,a,s)*x(h,a,s)) - (LabWage*HLAB(h));
+
+
+*eq_cshcnstrnt_NLP(h)..      sum(j, sldq(h,j)*jprice(j))+ sb(h) + exinc(h) + LABEARN(h)
+*                           =g= sum(j, bght(h,j)*jprice(j)) + sum((a,s)$map_has(h,a,s), ALPHACST(h,a,s)*x(h,a,s)+ 0.5 * BETACST(h,a,s)*x(h,a,s)*x(h,a,s)) + (LabWage*HLAB(h)) ;
+
+
+* --- Related with 3rd approach to estimate parameters
 eq_AgrInc_nlp(h)..        Z(h) =e= sum(j, [sldq(h,j)+ cs(h,j)]*jprice(j)) + sb(h)
-                          - sum((a,s)$map_has(h,a,s), ALPHACST(h,a,s)*x(h,a,s)+ 0.5 * BETACST(h,a,s)*x(h,a,s)*x(h,a,s)) - (LabWage*HLAB(h));
+                          - sum((a,s)$map_has(h,a,s), ALPHACST(h,a,s)*x(h,a,s)** BETACST(h,a,s)*x(h,a,s)) - (LabWage*HLAB(h));
 
 
 eq_cshcnstrnt_NLP(h)..      sum(j, sldq(h,j)*jprice(j))+ sb(h) + exinc(h) + LABEARN(h)
-                           =g= sum(j, bght(h,j)*jprice(j)) + sum((a,s)$map_has(h,a,s), ALPHACST(h,a,s)*x(h,a,s)+ 0.5 * BETACST(h,a,s)*x(h,a,s)*x(h,a,s)) + (LabWage*HLAB(h)) ;
+                           =g= sum(j, bght(h,j)*jprice(j)) + sum((a,s)$map_has(h,a,s), ALPHACST(h,a,s)*x(h,a,s)** BETACST(h,a,s)*x(h,a,s)) + (LabWage*HLAB(h)) ;
 
 
 model PMPMODEL modelo PMP /
-   basesupply
-   eq_AgrInc_nlp
-   eq_cshcnstrnt_NLP
+   eq_Obj
+eq_FarmHhinc
+eq_AgrInc_nlp
+eq_tLAND
+eq_iLAND
+eq_TotLab
+eq_FamLab
+eq_LabIncAcc
+eq_qttbaltrf
+eq_waterUse
+eq_water
+eq_Qttyblnce
+eq_prdGds
+eq_prdGds2
+eq_buyorsell
+eq_cshcnstrnt_NLP
+eq_expfunct
 /;
+
 
 solve PMPMODEL using NLP maximizing U;
 
 REPORT0(h,a,s,'pmpModel') = x.l(h,a,s);
-*REPORT0(h,a,'irr','pmpModel') = sum((a,'irr'), X.L(h,a,'irr'));
+
 
 REPORT1(h,'income','Household','pmpModel') = R.L(h);
 REPORT1(h,'income','Agricultural','pmpModel') = Z.L(h);
@@ -376,7 +412,6 @@ DW(h) = [DW_ori(h)*(1-0.1*ord(sim))]/hd;
 solve PMPMODEL using NLP maximizing U;
 
 REPORT0(h,a,s,sim) = x.l(h,a,s);
-*REPORT0(h,a,'irr',sim) = sum((a,'irr'), X.L(h,a,'irr'));
 
 REPORT1(h,'income','Household',sim) = R.L(h);
 REPORT1(h,'income','Agricultural',sim) = Z.L(h);
@@ -410,7 +445,7 @@ Option  REPORT0:1
         REPORT2:1
         REPORT3:1
 ;
-Display chPMP, chIrrland, chTtlLnd, REPORT0, REPORT1, REPORT2, REPORT3, owage ;
+Display chPMP, chHlab, chIrrland, chTtlLnd, REPORT0, REPORT1, REPORT2, REPORT3;
 
 *   ---- create gdx file with model data
 
