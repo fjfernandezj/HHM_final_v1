@@ -159,7 +159,7 @@ X.fx(h,a,s)$(not map_has(h,a,s)) = 0;
 
 * bounds on variables
 X.up(h,a,s)$map_has(h,a,s) = tland;
-
+*FOUT.up(h) = 0;
 FW.up(h)                   = w0(h)*hd;
 
 IL.up(h) = 1.2*ihland(h);
@@ -312,16 +312,12 @@ Parameter ALPHACST  "marginal cost intercept"
 
 mu1(h,a,s)$map_has(h,a,s)  = CALIB1.M(h,a,s);
 
-* --- Different approaches to derive the parameters of the variable cost functions
 * ---Depending on the approach that the user want to use we can deactivate or not each option
-
-*** --- PMP 1srt approach (The “average cost” PMP variant)
+* --- PMP 1srt approach (Standard PMP - Average Cost Function)
 *ALPHACST(h,a,s)$map_has(h,a,s) = acst(h,a,s)- mu1(h,a,s);
 *BETACST(h,a,s)$map_has(h,a,s)  = 2*mu1(h,a,s)/x0(h,a,s);
 
-**** --- PMP approaches using exogenous information
-
-* --- PMP 2nd approach (Helming et al. approach)
+* --- PMP 2nd approach with elasticities - Average Cost Function
 *BETACST(h,a,s)$map_has(h,a,s) = (1/selas(a))*((pprice(a))/x0(h,a,s)) ;
 *ALPHACST(h,a,s)$map_has(h,a,s) = acst(h,a,s)+ mu1(h,a,s)- BETACST(h,a,s)*x0(h,a,s);
 
