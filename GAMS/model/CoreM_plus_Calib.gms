@@ -114,7 +114,7 @@ eq_expfunct           Farm household expenditure function
 
 * --- Objective function
 *** ---- ¿¿¿??? Adding household weight to the Objective funtion impede a good calibration ---Why???
-eq_Obj..                  U =e=sum(h, R(h));
+eq_Obj..                  U =e=sum(h, w(h)* R(h));
 
 eq_FarmHhinc(h)..         R(h) =e= Z(h) + LABEARN(h) + exinc(h) ;
 
@@ -207,7 +207,7 @@ REPORT1(h,'Land','Irrigated','baseLP') = sum((a)$map_has(h,a,'irr'), X.L(h,a,'ir
 REPORT1(h,'Labour','Hired','baseLP') = HLAB.L(h);
 REPORT1(h,'Labour','Family','baseLP') =  FLAB.L(h);
 REPORT1(h,'Labour','HireOut','baseLP') =  FOUT.L(h);
-REPORT1(h,'Labour','Total_Req','baseLP') = sum((a,s), labr(a,s)*X.L(h,a,s));
+REPORT1(h,'Labour','Total_Req','baseLP') = sum((a,s)$map_has(h,a,s), labreq(h,a,s)*X.L(h,a,s));
 REPORT1(h,'Labour','Marginal','baseLP') = eq_TotLab.M(h);
 REPORT1(h,'Water','Level','baseLP') =  sum(a, fir(h,a,'irr')*X.L(h,a,'irr'));
 REPORT1(h,'Water','Marginal','baseLP') = eq_waterUse.M(h);
@@ -221,6 +221,8 @@ REPORT2(h,j,'Self_Cons','baseLP') = cs.L(h,j);
 REPORT3('Weight_ExpIncome','Level','baseLP') = U.L;
 REPORT3('Ttl_Land','','baseLP')= sum((h,a,s), X.L(h,a,s));
 REPORT3('Irr_Land','Level','baseLP') = sum((h,a)$map_has(h,a,'irr'), X.L(h,a,'irr'));
+REPORT3('Imp_Lab','Level','baseLP') =   IM_Lab.L;
+REPORT3('Exp_Lab','Level','baseLP') =   EX_Lab.L;
 
 *~~~~~~~~~~~~~~~~~~~~~~~~ CALIBRATION CONSTRAINTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
 
@@ -256,7 +258,7 @@ REPORT1(h,'Land','Irrigated','pmpCalib') = sum((a)$map_has(h,a,'irr'), X.L(h,a,'
 REPORT1(h,'Labour','Hired','pmpCalib') = HLAB.L(h);
 REPORT1(h,'Labour','Family','pmpCalib') =  FLAB.L(h);
 REPORT1(h,'Labour','HireOut','pmpCalib') =  FOUT.L(h);
-REPORT1(h,'Labour','Total_Req','pmpCalib') = sum((a,s), labr(a,s)*X.L(h,a,s));
+REPORT1(h,'Labour','Total_Req','pmpCalib') = sum((a,s)$map_has(h,a,s), labreq(h,a,s)*X.L(h,a,s));
 REPORT1(h,'Labour','Marginal','pmpCalib') = eq_TotLab.M(h);
 REPORT1(h,'Water','Level','pmpCalib') =  sum(a, fir(h,a,'irr')*X.L(h,a,'irr'));
 REPORT1(h,'Water','Marginal','pmpCalib') = eq_waterUse.M(h);
@@ -272,6 +274,8 @@ REPORT2(h,j,'Self_Cons','pmpCalib') = cs.L(h,j);
 REPORT3('Weight_ExpIncome','Level','pmpCalib') = U.L;
 REPORT3('Ttl_Land','','pmpCalib')= sum((h,a,s), X.L(h,a,s));
 REPORT3('Irr_Land','Level','pmpCalib') = sum((h,a)$map_has(h,a,'irr'), X.L(h,a,'irr'));
+REPORT3('Imp_Lab','Level','pmpCalib') =   IM_Lab.L;
+REPORT3('Exp_Lab','Level','pmpCalib') =   EX_Lab.L;
 
 * Check parameters (Activities, Labour, water and land)
 parameter chPMP, chHlab, chIrrland, chTtlLnd;
@@ -310,7 +314,7 @@ Parameter ALPHACST  "marginal cost intercept"
           cpar      "cost function parameters"
 ;
 
-mu1(h,a,s)$map_has(h,a,s)  = CALIB1.M(h,a,s);
+mu1(h,a,s)$map_has(h,a,s)  = CALIB1.M(h,a,s)/w(h);
 
 * --- Different approaches to derive the parameters of the variable cost functions
 * ---Depending on the approach that the user want to use we can deactivate or not each option
@@ -389,7 +393,7 @@ REPORT1(h,'Land','Irrigated','pmpModel') = sum((a)$map_has(h,a,'irr'), X.L(h,a,'
 REPORT1(h,'Labour','Hired','pmpModel') = HLAB.L(h);
 REPORT1(h,'Labour','Family','pmpModel') =  FLAB.L(h);
 REPORT1(h,'Labour','HireOut','pmpModel') =  FOUT.L(h);
-REPORT1(h,'Labour','Total_Req','pmpModel') = sum((a,s), labr(a,s)*X.L(h,a,s));
+REPORT1(h,'Labour','Total_Req','pmpModel') = sum((a,s)$map_has(h,a,s), labreq(h,a,s)*X.L(h,a,s));
 REPORT1(h,'Labour','Marginal','pmpModel') = eq_TotLab.M(h);
 REPORT1(h,'Water','Level','pmpModel') =  sum(a, fir(h,a,'irr')*X.L(h,a,'irr'));
 REPORT1(h,'Water','Marginal','pmpModel') = eq_waterUse.M(h);
@@ -405,7 +409,8 @@ REPORT2(h,j,'Self_Cons','pmpModel') = cs.L(h,j);
 REPORT3('Weight_ExpIncome','Level','pmpModel') = U.L;
 REPORT3('Ttl_Land','','pmpModel')= sum((h,a,s), X.L(h,a,s));
 REPORT3('Irr_Land','Level','pmpModel') = sum((h,a)$map_has(h,a,'irr'), X.L(h,a,'irr'));
-
+REPORT3('Imp_Lab','Level','pmpModel') =   IM_Lab.L;
+REPORT3('Exp_Lab','Level','pmpModel') =   EX_Lab.L;
 *~~~~~~~~~~~~~~~~~~~~~ WATER VARIABILITY SIMULATION  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
 *   ---- water variability simulations
 set SIM simulations  /SIM1*SIM5/
@@ -424,7 +429,7 @@ REPORT1(h,'Land','Irrigated',sim) = sum((a)$map_has(h,a,'irr'), X.L(h,a,'irr'));
 REPORT1(h,'Labour','Hired',sim) = HLAB.L(h);
 REPORT1(h,'Labour','Family',sim) =  FLAB.L(h);
 REPORT1(h,'Labour','HireOut',sim) =  FOUT.L(h);
-REPORT1(h,'Labour','Total_Req',sim) = sum((a,s), labr(a,s)*X.L(h,a,s));
+REPORT1(h,'Labour','Total_Req',sim) = sum((a,s)$map_has(h,a,s), labreq(h,a,s)*X.L(h,a,s));
 REPORT1(h,'Labour','Marginal',sim) = eq_TotLab.M(h);
 REPORT1(h,'Water','Level',sim) =  sum(a, fir(h,a,'irr')*X.L(h,a,'irr'));
 REPORT1(h,'Water','Marginal',sim) = eq_waterUse.M(h);
@@ -440,12 +445,13 @@ REPORT2(h,j,'Self_Cons',sim) = cs.L(h,j);
 REPORT3('Weight_ExpIncome','Level',sim) = U.L;
 REPORT3('Ttl_Land','',sim)= sum((h,a,s), X.L(h,a,s));
 REPORT3('Irr_Land','Level',sim) = sum((h,a)$map_has(h,a,'irr'), X.L(h,a,'irr'));
-
+REPORT3('Imp_Lab','Level',sim) =   IM_Lab.L;
+REPORT3('Exp_Lab','Level',sim) =   EX_Lab.L;
 );
 
 
 Option  REPORT0:1
-        REPORT1:1
+        REPORT1:3
         REPORT2:1
         REPORT3:1
 ;
