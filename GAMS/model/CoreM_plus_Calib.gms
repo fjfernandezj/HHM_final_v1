@@ -119,7 +119,7 @@ eq_Obj..                  U =e=sum(h, w(h)* R(h));
 eq_FarmHhinc(h)..         R(h) =e= Z(h) + LABEARN(h) + exinc(h) ;
 
 eq_AgrInc_LP(h)..         Z(h) =e= sum(j, [sldq(h,j)+ cs(h,j)]*jprice(j)) + sb(h)
-                          - sum((a,s)$map_has(h,a,s), acst(h,a,s)*x(h,a,s)) - (LabWage*HLAB(h));
+                          - sum((a,s)$map_has(h,a,s), acst(h,a,s)*x(h,a,s)) - sum(j,bght(h,j)*jprice(j)) -(LabWage*HLAB(h));
 
 eq_tLAND(h)..              sum((a,s)$map_has(h,a,s), X(h,a,s)) =L= thland(h) ;
 
@@ -353,7 +353,7 @@ equation eq_AgrInc_nlp            "non linear Agricultural expected income funct
 
 * --- Related with 3rd approach to estimate parameters
 eq_AgrInc_nlp(h)..        Z(h) =e= sum(j, [sldq(h,j)+ cs(h,j)]*jprice(j)) + sb(h)
-                          - sum((a,s)$map_has(h,a,s), ALPHACST(h,a,s)*x(h,a,s)** BETACST(h,a,s)*x(h,a,s)) - (LabWage*HLAB(h));
+                          - sum((a,s)$map_has(h,a,s), ALPHACST(h,a,s)*x(h,a,s)** BETACST(h,a,s)*x(h,a,s)) - sum(j,bght(h,j)*jprice(j)) - (LabWage*HLAB(h));
 
 
 eq_cshcnstrnt_NLP(h)..      sum(j, sldq(h,j)*jprice(j))+ sb(h) + exinc(h) + LABEARN(h)

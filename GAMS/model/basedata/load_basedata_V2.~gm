@@ -330,8 +330,6 @@ selas('chk')=0.85;
 *  water requirements commune
 fir_com(h,c,a,'irr') = p_householdData(h,c,a,'irr','cir');
 fir(h,a,'irr')$(sum(c,fir_com(h,c,a,'irr')) gt 0) = sum(c,fir_com(h,c,a,'irr'))/sum(c, 1$fir_com(h,c,a,'irr'));
-fir(h,'oat','irr')=fir(h,'wht','irr');
-fir(h,'ric','irr')=fir(h,'mze','irr')*(1.45);
 hd = 0.6 ;
 gir(h,a,'irr') = fir(h,a,'irr')/hd;
 
