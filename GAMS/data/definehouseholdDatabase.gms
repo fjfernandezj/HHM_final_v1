@@ -183,8 +183,8 @@ p_householdData(hou,com,act,'irr','MachCost')= t_householdData(hou,com,act,'irr'
 p_householdData(hou,com,act,'dry','MachCost')= t_householdData(hou,com,act,'dry','MachCost');
 
 * --- check vcost
-p_householdData(hou,com,act,'irr','vcost2')= p_householdData(hou,com,act,'irr','InputCosts')+ p_householdData(hou,com,act,'irr','HrdLabCost')+ p_householdData(hou,com,act,'irr','FamilyLabCost')+p_householdData(hou,com,act,'irr','MachCost');
-p_householdData(hou,com,act,'dry','vcost2')= p_householdData(hou,com,act,'dry','InputCosts')+ p_householdData(hou,com,act,'dry','HrdLabCost')+ p_householdData(hou,com,act,'dry','FamilyLabCost')+p_householdData(hou,com,act,'dry','MachCost');
+p_householdData(hou,com,act,'irr','vcost2')= p_householdData(hou,com,act,'irr','InputCosts')+ p_householdData(hou,com,act,'irr','MachCost');
+p_householdData(hou,com,act,'dry','vcost2')= p_householdData(hou,com,act,'dry','InputCosts')+ p_householdData(hou,com,act,'dry','MachCost');
 
 p_householdData(hou,com,act,'irr','vcost')= t_householdData(hou,com,act,'irr','TotalCosts');
 p_householdData(hou,com,act,'dry','vcost')= t_householdData(hou,com,act,'dry','TotalCosts');
