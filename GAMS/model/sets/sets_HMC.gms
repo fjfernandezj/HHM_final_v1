@@ -104,7 +104,7 @@ eb  ME supports beta LES       /e1*e11/
 eg  ME supports gamma LES      /e1*e5/
 ee  ME supports mhu LES        /e1*e3/
 
-ls labour season   /S1 april to sept, S2 Oct to March/    
+ls labour season   /S1 april to sept, S2 Oct to March/
 ;
 
 
@@ -121,7 +121,7 @@ set
 set
 var       'variables'             /Area,yld,prd,cons,prc,hrd_lab,fam_lab,TtlLab_Cst,
                                   inpCst,RntCst,TtlCst,srev,gmar,consPrice,gdsCons,
-                                  tot_lab,vcost,selast,prd_prc,HLab_Price,FLab_Price,cir,hhldCons/
+                                  tot_lab,vcost,selast,prd_prc,HLab_Price,FLab_Price,cir,hhldCons,vcost2/
 
 ;
 
