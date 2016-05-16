@@ -98,7 +98,7 @@ parameter avgCst   'Household Average cost per ha'
 
 ;
 
-avgCst(h,a,s)$(sum(c, p_householdData(h,c,a,s,'vcost')) gt 0) = sum(c, p_householdData(h,c,a,s,'vcost')) / sum(c, 1$p_householdData(h,c,a,s,'vcost')) ;
+avgCst(h,a,s)$(sum(c, p_householdData(h,c,a,s,'vcost2')) gt 0) = sum(c, p_householdData(h,c,a,s,'vcost2')) / sum(c, 1$p_householdData(h,c,a,s,'vcost2')) ;
 avgYld(h,a,s)$(sum(c, p_householdData(h,c,a,s,'yld')) gt 0) = sum(c, p_householdData(h,c,a,s,'yld')) / sum(c, 1$p_householdData(h,c,a,s,'yld')) ;
 
 avgSrev(h,a,s)$(sum(c, p_householdData(h,c,a,s,'srev')) gt 0) = sum(c, p_householdData(h,c,a,s,'srev')) / sum(c, 1$p_householdData(h,c,a,s,'srev')) ;
@@ -338,6 +338,57 @@ gir(h,a,'irr') = fir(h,a,'irr')/hd;
 * => water delivery
 w0(h) = sum(a, gir(h,a,'irr')*x0(h,a,'irr'));
 DW(h) = W0(h);
+
+*--- Labour Seasonality
+** --- Percentage share of family labour availability was assumed
+parameter
+SLA(ls)      "percentage share of family labour availability"
+/S1  0.5
+ S2  0.5/
+;
+
+** --- Percentage share of labour requirements was calculated based on data from ODEPA
+* ("Fichas de costos", for each crop) 
+parameter SLR "percentage share of labour requirements";
+
+SLR('wht','irr','s1')= 0.6;
+SLR('wht','irr','s2')= 0.4;
+SLR('wht','dry','s1')= 0.7;
+SLR('wht','dry','s2')= 0.3;
+SLR('oat','irr','s1')= 0.4;
+SLR('oat','irr','s2')= 0.6;
+SLR('oat','dry','s1')= 0.4;
+SLR('oat','dry','s2')= 0.6;
+SLR('ric','irr','s1')= 0.1;
+SLR('ric','irr','s2')= 0.9;
+SLR('mze','irr','s1')= 0.1;
+SLR('mze','irr','s2')= 0.9;
+SLR('mze','dry','s1')= 0.1;
+SLR('mze','dry','s2')= 0.9;
+SLR('cmb','irr','s2')= 1.0;
+SLR('cmb','dry','s1')= 0.3;
+SLR('cmb','dry','s2')= 0.7;
+SLR('gbn','irr','s1')= 0.1;
+SLR('gbn','irr','s2')= 0.9;
+SLR('chk','irr','s1')= 0.2;
+SLR('chk','irr','s2')= 0.8;
+SLR('chk','dry','s1')= 0.2;
+SLR('chk','dry','s2')= 0.8;
+SLR('pot','irr','s2')= 1.0;
+SLR('pot','dry','s1')= 0.2;
+SLR('pot','dry','s2')= 0.8;
+SLR('pea','irr','s1')= 0.1;
+SLR('pea','irr','s2')= 0.9;
+SLR('pea','dry','s1')= 0.1;
+SLR('pea','dry','s2')= 0.9;
+SLR('oni','irr','s1')= 0.4;
+SLR('oni','irr','s2')= 0.6;
+SLR('tom','irr','s2')= 1.0;
+SLR('mel','irr','s2')= 1.0;
+SLR('sqh','irr','s1')= 0.2;
+SLR('sqh','irr','s2')= 0.8;
+SLR('wtm','irr','s2')= 1.0;
+
 
 
 DISPLAY jcons_com, jcons, jprice, exinc, sb, avgGmar, x0, Z1, bdgtshr, avs, avg_hougamma, consval, Y_0, avg_comgamma, Z2,
