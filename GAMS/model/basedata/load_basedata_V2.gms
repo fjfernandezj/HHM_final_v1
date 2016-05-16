@@ -244,7 +244,7 @@ avFamLab(h)$(sum((a,s),labfam(h,a,s)) gt 0) = sum((a,s),labfam(h,a,s))/sum((a,s)
 ** --- average Hired labour available per household
 avHrdLab(h)$(sum((a,s),labrnt(h,a,s)) gt 0) = sum((a,s),labrnt(h,a,s))/sum((a,s),1$labrnt(h,a,s));
 
-hlab0(h) =  avHrdLab(h);
+*hlab0(h) =  avHrdLab(h);
 
 ** ---- Average price Hired labour by activity and system
 LabWage$(sum((h,c,a,s),p_householdData(h,c,a,s,'HLab_Price')) gt 0) = [sum((h,c,a,s),p_householdData(h,c,a,s,'HLab_Price'))/sum((h,c,a,s),1$p_householdData(h,c,a,s,'HLab_Price'))] * (1/1000000) ;
@@ -348,7 +348,7 @@ SLA(ls)      "percentage share of family labour availability"
 ;
 
 ** --- Percentage share of labour requirements was calculated based on data from ODEPA
-* ("Fichas de costos", for each crop) 
+* ("Fichas de costos", for each crop)
 parameter SLR "percentage share of labour requirements";
 
 SLR('wht','irr','s1')= 0.6;
